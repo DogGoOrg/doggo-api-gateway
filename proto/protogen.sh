@@ -2,6 +2,6 @@
 
 mkdir ./proto_services
 
-protoc --go_out=./proto/services   \
-    --go-grpc_out=./proto/services \
-    proto/doggo-proto/*
+protoc --go_out=./proto_services   \
+    --go-grpc_out=./proto_services \
+    ./doggo-proto/*
