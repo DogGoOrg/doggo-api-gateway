@@ -17,7 +17,8 @@ func main() {
 	app := server.NewServer()
 	app.Engine().Use(gin.Recovery())
 
-	server.ConfigureRoutes(app)
+	conns := server.EstablishConnection()
+	server.ConfigureRoutes(app, conns)
 
 	if err := app.Run(os.Getenv("PORT")); err != nil {
 		log.Print(err)

@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Tracker_AddPoint_FullMethodName = "/Tracker.Tracker/AddPoint"
+	Tracker_Ping_FullMethodName     = "/Tracker.Tracker/Ping"
 )
 
 // TrackerClient is the client API for Tracker service.
@@ -27,6 +28,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TrackerClient interface {
 	AddPoint(ctx context.Context, in *AddPointReq, opts ...grpc.CallOption) (*AddPointRes, error)
+	// default ping response for microservice
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type trackerClient struct {
@@ -46,11 +49,22 @@ func (c *trackerClient) AddPoint(ctx context.Context, in *AddPointReq, opts ...g
 	return out, nil
 }
 
+func (c *trackerClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, Tracker_Ping_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TrackerServer is the server API for Tracker service.
 // All implementations must embed UnimplementedTrackerServer
 // for forward compatibility
 type TrackerServer interface {
 	AddPoint(context.Context, *AddPointReq) (*AddPointRes, error)
+	// default ping response for microservice
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedTrackerServer()
 }
 
@@ -60,6 +74,9 @@ type UnimplementedTrackerServer struct {
 
 func (UnimplementedTrackerServer) AddPoint(context.Context, *AddPointReq) (*AddPointRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPoint not implemented")
+}
+func (UnimplementedTrackerServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedTrackerServer) mustEmbedUnimplementedTrackerServer() {}
 
@@ -92,6 +109,24 @@ func _Tracker_AddPoint_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Tracker_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TrackerServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tracker_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TrackerServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Tracker_ServiceDesc is the grpc.ServiceDesc for Tracker service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +137,10 @@ var Tracker_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddPoint",
 			Handler:    _Tracker_AddPoint_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _Tracker_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
