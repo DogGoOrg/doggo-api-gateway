@@ -1,16 +1,11 @@
 package server
 
 import (
-	"context"
-	"log"
 	"time"
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/endpoints"
-	"github.com/DogGoOrg/doggo-api-gateway/proto/proto_services/Account"
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Server struct {
@@ -40,19 +35,7 @@ func (server *Server) Engine() *gin.Engine {
 	return server.engine
 }
 
-func (server *Server) DialAccountServiceConnection(addr string) (Account.AccountClient, error) {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-		conn.Close()
-		return nil, err
-	}
-
-	client := Account.NewAccountClient(conn)
-	return client, nil
-}
-
-func ConfigureRoutes(server *Server, conn *ServiceConnections) {
+func ConfigureRoutes(server *Server) {
 
 	eng := server.engine
 
@@ -75,19 +58,5 @@ func ConfigureRoutes(server *Server, conn *ServiceConnections) {
 		})
 	})
 
-	eng.GET("/ping_account", func(ginCtx *gin.Context) {
-		ctx := context.Background()
-		ctx, cancelFn := context.WithTimeout(ctx, time.Second*15)
-		defer cancelFn()
-
-		service := *conn.AccountService
-
-		res, err := service.Ping(ctx, &Account.PingRequest{})
-
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		endpoints.PingAccountHandler(ginCtx, res)
-	})
+	eng.GET("/ping_account", endpoints.PingAccountHandler)
 }
