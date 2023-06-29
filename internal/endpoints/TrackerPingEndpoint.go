@@ -6,20 +6,20 @@ import (
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/dto"
 	"github.com/DogGoOrg/doggo-api-gateway/internal/utils"
-	"github.com/DogGoOrg/doggo-api-gateway/proto/proto_services/Account"
+	"github.com/DogGoOrg/doggo-api-gateway/proto/proto_services/Tracker"
 	"github.com/gin-gonic/gin"
 )
 
-func PingAccountHandler(ctx *gin.Context) {
-	conn, err := handler.ConnGrpc("ACCOUNT_HOST")
+func TrackerPingHandler(ctx *gin.Context) {
+	conn, err := handler.ConnGrpc("TRACKER_HOST")
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	client := Account.NewAccountClient(conn)
+	client := Tracker.NewTrackerClient(conn)
 
-	res, err := client.Ping(context.Background(), &Account.PingRequest{})
+	res, err := client.Ping(context.Background(), &Tracker.PingRequest{})
 
 	if err != nil {
 		response := utils.ResponseWrapper{
@@ -32,7 +32,7 @@ func PingAccountHandler(ctx *gin.Context) {
 		return
 	}
 
-	dto := dto.AccountPingDTO{Status: res.Status}
+	dto := dto.TrackerPingDTO{Status: res.Status}
 
 	response := utils.ResponseWrapper{true, nil, dto}
 
