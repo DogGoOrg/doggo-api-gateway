@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"context"
-	"log"
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/dto"
 	"github.com/DogGoOrg/doggo-api-gateway/internal/utils"
@@ -11,30 +10,27 @@ import (
 )
 
 func TrackerPingHandler(ctx *gin.Context) {
-	conn, err := handler.ConnGrpc("TRACKER_HOST")
+	conn, err := grpcController.ConnGrpc("TRACKER_HOST")
 
 	if err != nil {
-		log.Println(err)
+		utils.Error5xx(ctx, err)
+		return
 	}
+
+	defer conn.Close()
 
 	client := Tracker.NewTrackerClient(conn)
 
 	res, err := client.Ping(context.Background(), &Tracker.PingRequest{})
 
 	if err != nil {
-		response := utils.ResponseWrapper{
-			Status: false,
-			Error:  err,
-			Data:   nil,
-		}
-
-		ctx.AbortWithStatusJSON(500, response)
+		utils.Error5xx(ctx, err)
 		return
 	}
 
-	dto := dto.TrackerPingDTO{Status: res.Status}
+	dto := &dto.TrackerPingDTO{Status: res.Status}
 
-	response := utils.ResponseWrapper{true, nil, dto}
+	response := utils.ResponseWrapper{Status: true, Error: nil, Data: dto}
 
 	ctx.JSON(200, response)
 }
