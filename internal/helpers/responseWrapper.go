@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 type ResponseWrapper struct {
 	Status bool        `json:"status"`

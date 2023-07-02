@@ -5,18 +5,20 @@ import (
 	"os"
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/server"
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 
+	//config
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	app := server.NewServer()
-	app.Engine().Use(gin.Recovery())
+	//logging
+	logger := server.SetupLogger()
+
+	app := server.NewServer(logger)
 
 	server.ConfigureRoutes(app)
 

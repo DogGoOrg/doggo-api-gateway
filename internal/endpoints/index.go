@@ -1,9 +1,7 @@
 package endpoints
 
-import (
-	"github.com/DogGoOrg/doggo-api-gateway/internal/utils"
-)
+import "github.com/DogGoOrg/doggo-api-gateway/internal/helpers"
 
 var (
-	grpcController = new(utils.GrpcConnectionController)
+	grpcController = new(helpers.GrpcConnectionController)
 )

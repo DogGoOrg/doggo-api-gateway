@@ -4,17 +4,21 @@ import (
 	"time"
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/endpoints"
+	"github.com/DogGoOrg/doggo-api-gateway/internal/middleware"
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
+	"golang.org/x/exp/slog"
 )
 
 type Server struct {
 	engine *gin.Engine
+	logger *slog.Logger
 }
 
-func NewServer() *Server {
+func NewServer(logger *slog.Logger) *Server {
 	return &Server{
-		engine: gin.Default(),
+		engine: gin.New(),
+		logger: logger,
 	}
 }
 
@@ -28,6 +32,9 @@ func (server *Server) Run(addr string) error {
 		Credentials:     false,
 		ValidateHeaders: false,
 	}))
+	server.engine.Use(
+		gin.Recovery(),
+	)
 	return server.engine.Run(":" + addr)
 }
 
@@ -36,6 +43,8 @@ func (server *Server) Engine() *gin.Engine {
 }
 
 func ConfigureRoutes(server *Server) {
+
+	loggerMiddleware := middleware.NewLoggerMiddleware(server.logger)
 
 	eng := server.engine
 
@@ -51,6 +60,8 @@ func ConfigureRoutes(server *Server) {
 		}
 		ctx.Next()
 	})
+
+	eng.Use(loggerMiddleware)
 
 	eng.GET("/health", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{

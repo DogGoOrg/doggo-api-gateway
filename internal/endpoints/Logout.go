@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"github.com/DogGoOrg/doggo-api-gateway/internal/utils"
+	"github.com/DogGoOrg/doggo-api-gateway/internal/helpers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,7 +10,7 @@ func Logout(ctx *gin.Context) {
 	conn, err := grpcController.ConnGrpc("ACCOUNT_HOST")
 
 	if err != nil {
-		utils.Error5xx(ctx, err)
+		helpers.Error5xx(ctx, err)
 		return
 	}
 

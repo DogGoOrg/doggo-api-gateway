@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/dto"
-	"github.com/DogGoOrg/doggo-api-gateway/internal/utils"
+	"github.com/DogGoOrg/doggo-api-gateway/internal/helpers"
 	"github.com/DogGoOrg/doggo-api-gateway/proto/proto_services/Account"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/status"
@@ -20,25 +20,23 @@ func Login(ctx *gin.Context) {
 	var reqBody loginReqBody
 
 	if err := ctx.BindJSON(&reqBody); err != nil {
-		utils.Error5xx(ctx, err)
+		helpers.Error5xx(ctx, err)
 		return
 	}
 
 	email, password := reqBody.Email, reqBody.Password
 
 	if email != "" || password != "" {
-		utils.Error5xx(ctx, errors.New("invalid request body"))
+		helpers.Error5xx(ctx, errors.New("invalid request body"))
 		return
 	}
 
 	conn, err := grpcController.ConnGrpc("ACCOUNT_HOST")
 
 	if err != nil {
-		utils.Error5xx(ctx, err)
+		helpers.Error5xx(ctx, err)
 		return
 	}
-
-	defer conn.Close()
 
 	defer conn.Close()
 
@@ -48,7 +46,7 @@ func Login(ctx *gin.Context) {
 
 	if err != nil {
 		errStatus, _ := status.FromError(err)
-		utils.Error5xx(ctx, errStatus.Err())
+		helpers.Error5xx(ctx, errStatus.Err())
 		return
 	}
 
@@ -59,7 +57,7 @@ func Login(ctx *gin.Context) {
 		RefreshToken: res.RefreshToken,
 	}
 
-	response := utils.ResponseWrapper{Status: true, Error: nil, Data: dto}
+	response := helpers.ResponseWrapper{Status: true, Error: nil, Data: dto}
 
 	ctx.JSON(200, response)
 }
