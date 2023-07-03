@@ -26,7 +26,7 @@ func Login(ctx *gin.Context) {
 
 	email, password := reqBody.Email, reqBody.Password
 
-	if email != "" || password != "" {
+	if email == "" || password == "" {
 		helpers.Error5xx(ctx, errors.New("invalid request body"))
 		return
 	}
@@ -42,7 +42,7 @@ func Login(ctx *gin.Context) {
 
 	client := Account.NewAccountClient(conn)
 
-	res, err := client.Login(context.TODO(), &Account.LoginRequest{Email: email, Password: password})
+	res, err := client.Login(context.Background(), &Account.LoginRequest{Email: email, Password: password})
 
 	if err != nil {
 		errStatus, _ := status.FromError(err)
