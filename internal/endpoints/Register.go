@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"context"
 	"errors"
 
 	"github.com/DogGoOrg/doggo-api-gateway/internal/dto"
@@ -11,20 +10,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type loginReqBody struct {
+type registerReqBody struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func Login(ctx *gin.Context) {
-	var reqBody loginReqBody
+func Register(ctx *gin.Context) {
+	registerReqBody := &registerReqBody{}
 
-	if err := ctx.BindJSON(&reqBody); err != nil {
+	//bind body to struct
+	if err := ctx.BindJSON(registerReqBody); err != nil {
 		helpers.Error5xx(ctx, err)
 		return
 	}
 
-	email, password := reqBody.Email, reqBody.Password
+	email, password := registerReqBody.Email, registerReqBody.Password
 
 	if email == "" || password == "" {
 		helpers.Error5xx(ctx, errors.New("invalid request body"))
@@ -42,7 +42,7 @@ func Login(ctx *gin.Context) {
 
 	client := Account.NewAccountClient(conn)
 
-	res, err := client.Login(context.Background(), &Account.LoginRequest{Email: email, Password: password})
+	res, err := client.Register(ctx, &Account.RegisterRequest{Email: email, Password: password})
 
 	if err != nil {
 		errStatus, _ := status.FromError(err)
@@ -50,14 +50,11 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	dto := &dto.LoginDto{
-		Id:           res.Id,
-		Email:        res.Email,
-		AccessToken:  res.AccessToken,
-		RefreshToken: res.RefreshToken,
-	}
+	dto := &dto.RegisterDTO{Status: res.Status}
+
+	//TODO: send activation email
 
 	response := helpers.ResponseWrapper{Success: true, Error: nil, Data: dto}
 
-	ctx.JSON(200, response)
+	ctx.JSON(201, response)
 }

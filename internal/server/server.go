@@ -73,4 +73,5 @@ func ConfigureRoutes(server *Server) {
 	eng.GET("/ping_tracker", endpoints.TrackerPingHandler)
 
 	eng.POST("/login", endpoints.Login)
+	eng.POST("/register", endpoints.Register)
 }

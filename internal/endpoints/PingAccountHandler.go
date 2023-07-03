@@ -30,7 +30,7 @@ func PingAccountHandler(ctx *gin.Context) {
 
 	dto := &dto.AccountPingDTO{Status: res.Status}
 
-	response := helpers.ResponseWrapper{Status: true, Error: nil, Data: dto}
+	response := helpers.ResponseWrapper{Success: true, Error: nil, Data: dto}
 
 	ctx.JSON(200, response)
 }
