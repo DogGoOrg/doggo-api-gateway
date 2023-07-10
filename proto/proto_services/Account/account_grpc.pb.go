@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Account_GetAccountById_FullMethodName = "/Account.Account/GetAccountById"
-	Account_Login_FullMethodName          = "/Account.Account/Login"
-	Account_Logout_FullMethodName         = "/Account.Account/Logout"
-	Account_Refresh_FullMethodName        = "/Account.Account/Refresh"
-	Account_Register_FullMethodName       = "/Account.Account/Register"
-	Account_Ping_FullMethodName           = "/Account.Account/Ping"
+	Account_GetAccountById_FullMethodName     = "/Account.Account/GetAccountById"
+	Account_Login_FullMethodName              = "/Account.Account/Login"
+	Account_Logout_FullMethodName             = "/Account.Account/Logout"
+	Account_Refresh_FullMethodName            = "/Account.Account/Refresh"
+	Account_Register_FullMethodName           = "/Account.Account/Register"
+	Account_CheckAuthorization_FullMethodName = "/Account.Account/CheckAuthorization"
+	Account_Ping_FullMethodName               = "/Account.Account/Ping"
 )
 
 // AccountClient is the client API for Account service.
@@ -36,6 +37,7 @@ type AccountClient interface {
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 	Refresh(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	CheckAuthorization(ctx context.Context, in *CheckAuthorizationRequest, opts ...grpc.CallOption) (*CheckAuthorizationResponse, error)
 	// default ping response for microservice
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
@@ -93,6 +95,15 @@ func (c *accountClient) Register(ctx context.Context, in *RegisterRequest, opts 
 	return out, nil
 }
 
+func (c *accountClient) CheckAuthorization(ctx context.Context, in *CheckAuthorizationRequest, opts ...grpc.CallOption) (*CheckAuthorizationResponse, error) {
+	out := new(CheckAuthorizationResponse)
+	err := c.cc.Invoke(ctx, Account_CheckAuthorization_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *accountClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
 	out := new(PingResponse)
 	err := c.cc.Invoke(ctx, Account_Ping_FullMethodName, in, out, opts...)
@@ -111,6 +122,7 @@ type AccountServer interface {
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	Refresh(context.Context, *RefreshRequest) (*RefreshResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	CheckAuthorization(context.Context, *CheckAuthorizationRequest) (*CheckAuthorizationResponse, error)
 	// default ping response for microservice
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedAccountServer()
@@ -134,6 +146,9 @@ func (UnimplementedAccountServer) Refresh(context.Context, *RefreshRequest) (*Re
 }
 func (UnimplementedAccountServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedAccountServer) CheckAuthorization(context.Context, *CheckAuthorizationRequest) (*CheckAuthorizationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAuthorization not implemented")
 }
 func (UnimplementedAccountServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
@@ -241,6 +256,24 @@ func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Account_CheckAuthorization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAuthorizationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).CheckAuthorization(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_CheckAuthorization_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).CheckAuthorization(ctx, req.(*CheckAuthorizationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Account_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PingRequest)
 	if err := dec(in); err != nil {
@@ -285,6 +318,10 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Register",
 			Handler:    _Account_Register_Handler,
+		},
+		{
+			MethodName: "CheckAuthorization",
+			Handler:    _Account_CheckAuthorization_Handler,
 		},
 		{
 			MethodName: "Ping",
