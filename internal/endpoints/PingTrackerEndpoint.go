@@ -10,7 +10,7 @@ import (
 )
 
 func TrackerPingHandler(ctx *gin.Context) {
-	conn, err := grpcController.ConnGrpc("TRACKER_HOST")
+	conn, err := GrpcController.ConnGrpc("TRACKER_HOST")
 
 	if err != nil {
 		helpers.Error5xx(ctx, err)

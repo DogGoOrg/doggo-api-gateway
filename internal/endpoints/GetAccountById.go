@@ -6,7 +6,7 @@ import (
 )
 
 func GetAccountById(ctx *gin.Context) {
-	conn, err := grpcController.ConnGrpc("ACCOUNT_HOST")
+	conn, err := GrpcController.ConnGrpc("ACCOUNT_HOST")
 
 	if err != nil {
 		helpers.Error5xx(ctx, err)

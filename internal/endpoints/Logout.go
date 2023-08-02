@@ -7,7 +7,7 @@ import (
 
 func Logout(ctx *gin.Context) {
 	// var email, password string
-	conn, err := grpcController.ConnGrpc("ACCOUNT_HOST")
+	conn, err := GrpcController.ConnGrpc("ACCOUNT_HOST")
 
 	if err != nil {
 		helpers.Error5xx(ctx, err)
